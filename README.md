@@ -1,0 +1,1 @@
+Note: This repository contains guided projects, lecture code-alongs, and lab exercises focused on understanding core Machine Learning concepts. For my independent, end-to-end implementations, please see applied-ai.
