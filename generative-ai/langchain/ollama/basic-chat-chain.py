@@ -1,20 +1,19 @@
 # Import Libraries
-import os
 from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
 
-# Load Environment Variables
+# Load environment variables
 load_dotenv()
 
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY") 
-os.environ["LANGSMITH_ENDPOINT"] = os.getenv("LANGSMITH_ENDPOINT")
-os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGCHAIN_PROJECT")
+# Cache the llm to prevent repeated model wrapper creation
+@st.cache_resource
+def load_model():
+    return ChatOllama(model="qwen3:8b")
 
-# Create Prompt Template
+# Create prompt template
 prompt = ChatPromptTemplate.from_messages(
     [
         ("system", "You are an helpful AI assistant. Please respond to the question asked"),
@@ -26,14 +25,15 @@ prompt = ChatPromptTemplate.from_messages(
 st.title("Langchain Demo With Qwen3")
 input_text = st.text_input("What question you have in your mind? ")
 
-# Load Ollama Qwen3
-llm_model = ChatOllama(model="qwen3:8b")
+# Loading the ollama qwen3 model
+llm_model = load_model()
 
-# Output Parser
+# Initializing the output parser
 output_parser = StrOutputParser()
 
-# Create Chain
+# Creating the chain
 chain = prompt | llm_model | output_parser
 
+# Invoking the chain with user's input for response
 if input_text:
     st.write(chain.invoke({"question": input_text}))
